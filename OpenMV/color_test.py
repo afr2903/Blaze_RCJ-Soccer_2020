@@ -14,8 +14,8 @@ sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
 sensor.skip_frames(time = 500)
-sensor.set_auto_gain(False) # must be turned off for color tracking
-sensor.set_auto_whitebal(False) # must be turned off for color tracking
+sensor.set_auto_gain(False,9.56504) #7.04294  must be turned off for color tracking
+sensor.set_auto_whitebal(False,[-6.02073, -3.454361, -0.4176831]) # must be turned off for color tracking
 clock = time.clock()
 
 """# Capture the color thresholds for whatever was in the center of the image.
@@ -49,7 +49,10 @@ for i in range(200):
 #print("Thresholds learned...")
 #print("Tracking colors...")
 print(threshold);"""
+print(sensor.get_rgb_gain_db())
+print(sensor.get_gain_db())
 threshold= [37, 76, 32, 77, -5, 63]
+#threshold= [22, 44, 38, 68, 13, 57] #whitebal set
 
 d=0
 while(True):
@@ -62,6 +65,7 @@ while(True):
         a= int(blob.cx()/3)
         #print(a)
         uart.writechar(a)
+        uart.writechar(blob.rect()[2])
         #print(blob.cx())
         #print(blob.cx(), blob.cy(), blob.rect())
         #print(blob.rect()[2])
