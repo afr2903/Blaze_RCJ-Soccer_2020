@@ -14,7 +14,7 @@ sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
 sensor.skip_frames(time = 500)
-sensor.set_auto_gain(False,9.56504) #7.04294  must be turned off for color tracking
+#sensor.set_auto_gain(False) #7.04294  must be turned off for color tracking
 sensor.set_auto_whitebal(False,[-6.02073, -3.454361, -0.4176831]) # must be turned off for color tracking
 clock = time.clock()
 
@@ -51,8 +51,7 @@ for i in range(200):
 print(threshold);"""
 print(sensor.get_rgb_gain_db())
 print(sensor.get_gain_db())
-threshold= [37, 76, 32, 77, -5, 63]
-#threshold= [22, 44, 38, 68, 13, 57] #whitebal set
+threshold= [43, 76, 32, 77, -5, 63]
 
 d=0
 while(True):
@@ -62,10 +61,12 @@ while(True):
         img.draw_rectangle(blob.rect())
         img.draw_cross(blob.cx(), blob.cy())
 
-        a= int(blob.cx()/3)
-        #print(a)
-        uart.writechar(a)
-        uart.writechar(blob.rect()[2])
+        angle= int(blob.cx()*.40625)
+        #print(angle-70)
+        uart.writechar(angle)
+        #time.sleep(1)
+
+        #uart.writechar(blob.rect()[2])
         #print(blob.cx())
         #print(blob.cx(), blob.cy(), blob.rect())
         #print(blob.rect()[2])
