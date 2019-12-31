@@ -1,31 +1,31 @@
 /*!
-   @file Adafruit_BNO055.cpp
-
-    @mainpage Adafruit BNO055 Orientation Sensor
-
-    @section intro_sec Introduction
-
-    This is a library for the BNO055 orientation sensor
-
-    Designed specifically to work with the Adafruit BNO055 Breakout.
-
-    Pick one up today in the adafruit shop!
-    ------> https://www.adafruit.com/product/2472
-
-    These sensors use I2C to communicate, 2 pins are required to interface.
-
-    Adafruit invests time and resources providing this open source code,
-    please support Adafruit andopen-source hardware by purchasing products
-    from Adafruit!
-
-    @section author Author
-
-    K.Townsend (Adafruit Industries)
-
-    @section license License
-
-    MIT license, all text above must be included in any redistribution
-*/
+ * @file Adafruit_BNO055.cpp
+ *
+ *  @mainpage Adafruit BNO055 Orientation Sensor
+ *
+ *  @section intro_sec Introduction
+ *
+ *  This is a library for the BNO055 orientation sensor
+ *
+ *  Designed specifically to work with the Adafruit BNO055 Breakout.
+ *
+ *  Pick one up today in the adafruit shop!
+ *  ------> https://www.adafruit.com/product/2472
+ *
+ *  These sensors use I2C to communicate, 2 pins are required to interface.
+ *
+ *  Adafruit invests time and resources providing this open source code,
+ *  please support Adafruit andopen-source hardware by purchasing products
+ *  from Adafruit!
+ *
+ *  @section author Author
+ *
+ *  K.Townsend (Adafruit Industries)
+ *
+ *  @section license License
+ *
+ *  MIT license, all text above must be included in any redistribution
+ */
 
 #include "Arduino.h"
 
@@ -35,14 +35,14 @@
 #include "Adafruit_BNO055.h"
 
 /*!
-    @brief  Instantiates a new Adafruit_BNO055 class
-    @param  sensorID
-            sensor ID
-    @param  address
-            i2c address
-    @param  *theWire
-            Wire object
-*/
+ *  @brief  Instantiates a new Adafruit_BNO055 class
+ *  @param  sensorID
+ *          sensor ID
+ *  @param  address
+ *          i2c address
+ *  @param  *theWire
+ *          Wire object
+ */
 Adafruit_BNO055::Adafruit_BNO055(int32_t sensorID, uint8_t address,
                                  TwoWire *theWire) {
   _sensorID = sensorID;
@@ -51,28 +51,28 @@ Adafruit_BNO055::Adafruit_BNO055(int32_t sensorID, uint8_t address,
 }
 
 /*!
-    @brief  Sets up the HW
-    @param  mode
-            mode values
-             [OPERATION_MODE_CONFIG,
-              OPERATION_MODE_ACCONLY,
-              OPERATION_MODE_MAGONLY,
-              OPERATION_MODE_GYRONLY,
-              OPERATION_MODE_ACCMAG,
-              OPERATION_MODE_ACCGYRO,
-              OPERATION_MODE_MAGGYRO,
-              OPERATION_MODE_AMG,
-              OPERATION_MODE_IMUPLUS,
-              OPERATION_MODE_COMPASS,
-              OPERATION_MODE_M4G,
-              OPERATION_MODE_NDOF_FMC_OFF,
-              OPERATION_MODE_NDOF]
-    @return true if process is successful
-*/
+ *  @brief  Sets up the HW
+ *  @param  mode
+ *          mode values
+ *           [OPERATION_MODE_CONFIG,
+ *            OPERATION_MODE_ACCONLY,
+ *            OPERATION_MODE_MAGONLY,
+ *            OPERATION_MODE_GYRONLY,
+ *            OPERATION_MODE_ACCMAG,
+ *            OPERATION_MODE_ACCGYRO,
+ *            OPERATION_MODE_MAGGYRO,
+ *            OPERATION_MODE_AMG,
+ *            OPERATION_MODE_IMUPLUS,
+ *            OPERATION_MODE_COMPASS,
+ *            OPERATION_MODE_M4G,
+ *            OPERATION_MODE_NDOF_FMC_OFF,
+ *            OPERATION_MODE_NDOF]
+ *  @return true if process is successful
+ */
 bool Adafruit_BNO055::begin(adafruit_bno055_opmode_t mode) {
 #if defined(ARDUINO_SAMD_ZERO) && (_address == BNO055_ADDRESS_A)
 #error                                                                         \
-"On an arduino Zero, BNO055's ADR pin must be high. Fix that, then delete this line."
+    "On an arduino Zero, BNO055's ADR pin must be high. Fix that, then delete this line."
   _address = BNO055_ADDRESS_B;
 #endif
 
@@ -98,8 +98,9 @@ bool Adafruit_BNO055::begin(adafruit_bno055_opmode_t mode) {
   setMode(OPERATION_MODE_CONFIG);
 
   /* Reset */
-  //SE MODIFICO ESTA PARTE PARA TEENSY
-  //write8(BNO055_SYS_TRIGGER_ADDR, 0x20);
+  //TEENSY write8(BNO055_SYS_TRIGGER_ADDR, 0x20);
+  /* Delay incrased to 30ms due to power issues https://tinyurl.com/y375z699 */
+  delay(30);
   while (read8(BNO055_CHIP_ID_ADDR) != BNO055_ID) {
     delay(10);
   }
@@ -113,20 +114,20 @@ bool Adafruit_BNO055::begin(adafruit_bno055_opmode_t mode) {
 
   /* Set the output units */
   /*
-    uint8_t unitsel = (0 << 7) | // Orientation = Android
+  uint8_t unitsel = (0 << 7) | // Orientation = Android
                     (0 << 4) | // Temperature = Celsius
                     (0 << 2) | // Euler = Degrees
                     (1 << 1) | // Gyro = Rads
                     (0 << 0);  // Accelerometer = m/s^2
-    write8(BNO055_UNIT_SEL_ADDR, unitsel);
+  write8(BNO055_UNIT_SEL_ADDR, unitsel);
   */
 
   /* Configure axis mapping (see section 3.4) */
   /*
-    write8(BNO055_AXIS_MAP_CONFIG_ADDR, REMAP_CONFIG_P2); // P0-P7, Default is P1
-    delay(10);
-    write8(BNO055_AXIS_MAP_SIGN_ADDR, REMAP_SIGN_P2); // P0-P7, Default is P1
-    delay(10);
+  write8(BNO055_AXIS_MAP_CONFIG_ADDR, REMAP_CONFIG_P2); // P0-P7, Default is P1
+  delay(10);
+  write8(BNO055_AXIS_MAP_SIGN_ADDR, REMAP_SIGN_P2); // P0-P7, Default is P1
+  delay(10);
   */
 
   write8(BNO055_SYS_TRIGGER_ADDR, 0x0);
@@ -139,23 +140,23 @@ bool Adafruit_BNO055::begin(adafruit_bno055_opmode_t mode) {
 }
 
 /*!
-    @brief  Puts the chip in the specified operating mode
-    @param  mode
-            mode values
-             [OPERATION_MODE_CONFIG,
-              OPERATION_MODE_ACCONLY,
-              OPERATION_MODE_MAGONLY,
-              OPERATION_MODE_GYRONLY,
-              OPERATION_MODE_ACCMAG,
-              OPERATION_MODE_ACCGYRO,
-              OPERATION_MODE_MAGGYRO,
-              OPERATION_MODE_AMG,
-              OPERATION_MODE_IMUPLUS,
-              OPERATION_MODE_COMPASS,
-              OPERATION_MODE_M4G,
-              OPERATION_MODE_NDOF_FMC_OFF,
-              OPERATION_MODE_NDOF]
-*/
+ *  @brief  Puts the chip in the specified operating mode
+ *  @param  mode
+ *          mode values
+ *           [OPERATION_MODE_CONFIG,
+ *            OPERATION_MODE_ACCONLY,
+ *            OPERATION_MODE_MAGONLY,
+ *            OPERATION_MODE_GYRONLY,
+ *            OPERATION_MODE_ACCMAG,
+ *            OPERATION_MODE_ACCGYRO,
+ *            OPERATION_MODE_MAGGYRO,
+ *            OPERATION_MODE_AMG,
+ *            OPERATION_MODE_IMUPLUS,
+ *            OPERATION_MODE_COMPASS,
+ *            OPERATION_MODE_M4G,
+ *            OPERATION_MODE_NDOF_FMC_OFF,
+ *            OPERATION_MODE_NDOF]
+ */
 void Adafruit_BNO055::setMode(adafruit_bno055_opmode_t mode) {
   _mode = mode;
   write8(BNO055_OPR_MODE_ADDR, _mode);
@@ -163,20 +164,20 @@ void Adafruit_BNO055::setMode(adafruit_bno055_opmode_t mode) {
 }
 
 /*!
-    @brief  Changes the chip's axis remap
-    @param  remapcode
-            remap code possible values
-            [REMAP_CONFIG_P0
-             REMAP_CONFIG_P1 (default)
-             REMAP_CONFIG_P2
-             REMAP_CONFIG_P3
-             REMAP_CONFIG_P4
-             REMAP_CONFIG_P5
-             REMAP_CONFIG_P6
-             REMAP_CONFIG_P7]
-*/
+ *  @brief  Changes the chip's axis remap
+ *  @param  remapcode
+ *          remap code possible values
+ *          [REMAP_CONFIG_P0
+ *           REMAP_CONFIG_P1 (default)
+ *           REMAP_CONFIG_P2
+ *           REMAP_CONFIG_P3
+ *           REMAP_CONFIG_P4
+ *           REMAP_CONFIG_P5
+ *           REMAP_CONFIG_P6
+ *           REMAP_CONFIG_P7]
+ */
 void Adafruit_BNO055::setAxisRemap(
-  adafruit_bno055_axis_remap_config_t remapcode) {
+    adafruit_bno055_axis_remap_config_t remapcode) {
   adafruit_bno055_opmode_t modeback = _mode;
 
   setMode(OPERATION_MODE_CONFIG);
@@ -189,18 +190,18 @@ void Adafruit_BNO055::setAxisRemap(
 }
 
 /*!
-    @brief  Changes the chip's axis signs
-    @param  remapsign
-            remap sign possible values
-            [REMAP_SIGN_P0
-             REMAP_SIGN_P1 (default)
-             REMAP_SIGN_P2
-             REMAP_SIGN_P3
-             REMAP_SIGN_P4
-             REMAP_SIGN_P5
-             REMAP_SIGN_P6
-             REMAP_SIGN_P7]
-*/
+ *  @brief  Changes the chip's axis signs
+ *  @param  remapsign
+ *          remap sign possible values
+ *          [REMAP_SIGN_P0
+ *           REMAP_SIGN_P1 (default)
+ *           REMAP_SIGN_P2
+ *           REMAP_SIGN_P3
+ *           REMAP_SIGN_P4
+ *           REMAP_SIGN_P5
+ *           REMAP_SIGN_P6
+ *           REMAP_SIGN_P7]
+ */
 void Adafruit_BNO055::setAxisSign(adafruit_bno055_axis_remap_sign_t remapsign) {
   adafruit_bno055_opmode_t modeback = _mode;
 
@@ -214,10 +215,10 @@ void Adafruit_BNO055::setAxisSign(adafruit_bno055_axis_remap_sign_t remapsign) {
 }
 
 /*!
-    @brief  Use the external 32.768KHz crystal
-    @param  usextal
-            use external crystal boolean
-*/
+ *  @brief  Use the external 32.768KHz crystal
+ *  @param  usextal
+ *          use external crystal boolean
+ */
 void Adafruit_BNO055::setExtCrystalUse(boolean usextal) {
   adafruit_bno055_opmode_t modeback = _mode;
 
@@ -237,14 +238,14 @@ void Adafruit_BNO055::setExtCrystalUse(boolean usextal) {
 }
 
 /*!
-     @brief  Gets the latest system status info
-     @param  system_status
-             system status info
-     @param  self_test_result
-             self test result
-     @param  system_error
-             system error info
-*/
+ *   @brief  Gets the latest system status info
+ *   @param  system_status
+ *           system status info
+ *   @param  self_test_result
+ *           self test result
+ *   @param  system_error
+ *           system error info
+ */
 void Adafruit_BNO055::getSystemStatus(uint8_t *system_status,
                                       uint8_t *self_test_result,
                                       uint8_t *system_error) {
@@ -258,7 +259,7 @@ void Adafruit_BNO055::getSystemStatus(uint8_t *system_status,
      4 = Executing Self-Test
      5 = Sensor fusio algorithm running
      6 = System running without fusion algorithms
-  */
+   */
 
   if (system_status != 0)
     *system_status = read8(BNO055_SYS_STAT_ADDR);
@@ -272,7 +273,7 @@ void Adafruit_BNO055::getSystemStatus(uint8_t *system_status,
      Bit 3 = MCU self test
 
      0x0F = all good!
-  */
+   */
 
   if (self_test_result != 0)
     *self_test_result = read8(BNO055_SELFTEST_RESULT_ADDR);
@@ -289,7 +290,7 @@ void Adafruit_BNO055::getSystemStatus(uint8_t *system_status,
      8 = Accelerometer power mode not available
      9 = Fusion algorithm configuration error
      A = Sensor configuration error
-  */
+   */
 
   if (system_error != 0)
     *system_error = read8(BNO055_SYS_ERR_ADDR);
@@ -298,10 +299,10 @@ void Adafruit_BNO055::getSystemStatus(uint8_t *system_status,
 }
 
 /*!
-    @brief  Gets the chip revision numbers
-    @param  info
-            revision info
-*/
+ *  @brief  Gets the chip revision numbers
+ *  @param  info
+ *          revision info
+ */
 void Adafruit_BNO055::getRevInfo(adafruit_bno055_rev_info_t *info) {
   uint8_t a, b;
 
@@ -325,20 +326,20 @@ void Adafruit_BNO055::getRevInfo(adafruit_bno055_rev_info_t *info) {
 }
 
 /*!
-    @brief  Gets current calibration state.  Each value should be a uint8_t
-            pointer and it will be set to 0 if not calibrated and 3 if
-            fully calibrated.
-            See section 34.3.54
-    @param  sys
-            Current system calibration status, depends on status of all sensors,
-   read-only
-    @param  gyro
-            Current calibration status of Gyroscope, read-only
-    @param  accel
-            Current calibration status of Accelerometer, read-only
-    @param  mag
-            Current calibration status of Magnetometer, read-only
-*/
+ *  @brief  Gets current calibration state.  Each value should be a uint8_t
+ *          pointer and it will be set to 0 if not calibrated and 3 if
+ *          fully calibrated.
+ *          See section 34.3.54
+ *  @param  sys
+ *          Current system calibration status, depends on status of all sensors,
+ * read-only
+ *  @param  gyro
+ *          Current calibration status of Gyroscope, read-only
+ *  @param  accel
+ *          Current calibration status of Accelerometer, read-only
+ *  @param  mag
+ *          Current calibration status of Magnetometer, read-only
+ */
 void Adafruit_BNO055::getCalibration(uint8_t *sys, uint8_t *gyro,
                                      uint8_t *accel, uint8_t *mag) {
   uint8_t calData = read8(BNO055_CALIB_STAT_ADDR);
@@ -357,26 +358,26 @@ void Adafruit_BNO055::getCalibration(uint8_t *sys, uint8_t *gyro,
 }
 
 /*!
-    @brief  Gets the temperature in degrees celsius
-    @return temperature in degrees celsius
-*/
+ *  @brief  Gets the temperature in degrees celsius
+ *  @return temperature in degrees celsius
+ */
 int8_t Adafruit_BNO055::getTemp() {
   int8_t temp = (int8_t)(read8(BNO055_TEMP_ADDR));
   return temp;
 }
 
 /*!
-    @brief   Gets a vector reading from the specified source
-    @param   vector_type
-             possible vector type values
-             [VECTOR_ACCELEROMETER
-              VECTOR_MAGNETOMETER
-              VECTOR_GYROSCOPE
-              VECTOR_EULER
-              VECTOR_LINEARACCEL
-              VECTOR_GRAVITY]
-    @return  vector from specified source
-*/
+ *  @brief   Gets a vector reading from the specified source
+ *  @param   vector_type
+ *           possible vector type values
+ *           [VECTOR_ACCELEROMETER
+ *            VECTOR_MAGNETOMETER
+ *            VECTOR_GYROSCOPE
+ *            VECTOR_EULER
+ *            VECTOR_LINEARACCEL
+ *            VECTOR_GRAVITY]
+ *  @return  vector from specified source
+ */
 imu::Vector<3> Adafruit_BNO055::getVector(adafruit_vector_type_t vector_type) {
   imu::Vector<3> xyz;
   uint8_t buffer[6];
@@ -393,45 +394,55 @@ imu::Vector<3> Adafruit_BNO055::getVector(adafruit_vector_type_t vector_type) {
   z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   /*!
-     Convert the value to an appropriate range (section 3.6.4)
-     and assign the value to the Vector type
-  */
+   * Convert the value to an appropriate range (section 3.6.4)
+   * and assign the value to the Vector type
+   */
   switch (vector_type) {
-    case VECTOR_MAGNETOMETER:
-      /* 1uT = 16 LSB */
-      xyz[0] = ((double)x) / 16.0;
-      xyz[1] = ((double)y) / 16.0;
-      xyz[2] = ((double)z) / 16.0;
-      break;
-    case VECTOR_GYROSCOPE:
-      /* 1dps = 16 LSB */
-      xyz[0] = ((double)x) / 16.0;
-      xyz[1] = ((double)y) / 16.0;
-      xyz[2] = ((double)z) / 16.0;
-      break;
-    case VECTOR_EULER:
-      /* 1 degree = 16 LSB */
-      xyz[0] = ((double)x) / 16.0;
-      xyz[1] = ((double)y) / 16.0;
-      xyz[2] = ((double)z) / 16.0;
-      break;
-    case VECTOR_ACCELEROMETER:
-    case VECTOR_LINEARACCEL:
-    case VECTOR_GRAVITY:
-      /* 1m/s^2 = 100 LSB */
-      xyz[0] = ((double)x) / 100.0;
-      xyz[1] = ((double)y) / 100.0;
-      xyz[2] = ((double)z) / 100.0;
-      break;
+  case VECTOR_MAGNETOMETER:
+    /* 1uT = 16 LSB */
+    xyz[0] = ((double)x) / 16.0;
+    xyz[1] = ((double)y) / 16.0;
+    xyz[2] = ((double)z) / 16.0;
+    break;
+  case VECTOR_GYROSCOPE:
+    /* 1dps = 16 LSB */
+    xyz[0] = ((double)x) / 16.0;
+    xyz[1] = ((double)y) / 16.0;
+    xyz[2] = ((double)z) / 16.0;
+    break;
+  case VECTOR_EULER:
+    /* 1 degree = 16 LSB */
+    xyz[0] = ((double)x) / 16.0;
+    xyz[1] = ((double)y) / 16.0;
+    xyz[2] = ((double)z) / 16.0;
+    break;
+  case VECTOR_ACCELEROMETER:
+    /* 1m/s^2 = 100 LSB */
+    xyz[0] = ((double)x) / 100.0;
+    xyz[1] = ((double)y) / 100.0;
+    xyz[2] = ((double)z) / 100.0;
+    break;
+  case VECTOR_LINEARACCEL:
+    /* 1m/s^2 = 100 LSB */
+    xyz[0] = ((double)x) / 100.0;
+    xyz[1] = ((double)y) / 100.0;
+    xyz[2] = ((double)z) / 100.0;
+    break;
+  case VECTOR_GRAVITY:
+    /* 1m/s^2 = 100 LSB */
+    xyz[0] = ((double)x) / 100.0;
+    xyz[1] = ((double)y) / 100.0;
+    xyz[2] = ((double)z) / 100.0;
+    break;
   }
 
   return xyz;
 }
 
 /*!
-    @brief  Gets a quaternion reading from the specified source
-    @return quaternion reading
-*/
+ *  @brief  Gets a quaternion reading from the specified source
+ *  @return quaternion reading
+ */
 imu::Quaternion Adafruit_BNO055::getQuat() {
   uint8_t buffer[8];
   memset(buffer, 0, 8);
@@ -447,20 +458,27 @@ imu::Quaternion Adafruit_BNO055::getQuat() {
   z = (((uint16_t)buffer[7]) << 8) | ((uint16_t)buffer[6]);
 
   /*!
-     Assign to Quaternion
-     See
-     http://ae-bst.resource.bosch.com/media/products/dokumente/bno055/BST_BNO055_DS000_12~1.pdf
-     3.6.5.5 Orientation (Quaternion)
-  */
+   * Assign to Quaternion
+   * See
+   * http://ae-bst.resource.bosch.com/media/products/dokumente/bno055/BST_BNO055_DS000_12~1.pdf
+   * 3.6.5.5 Orientation (Quaternion)
+   */
   const double scale = (1.0 / (1 << 14));
   imu::Quaternion quat(scale * w, scale * x, scale * y, scale * z);
   return quat;
 }
 
+double Adafruit_BNO055::getError(){
+  imu::Quaternion q= getQuat();
+  double siny_cosp = 2 * (q.w()*q.z() + q.x()*q.y());
+  double cosy_cosp = 1 - 2 * (q.y()*q.y() + q.z()*q.z());
+  return -atan2(siny_cosp, cosy_cosp)*180/PI;
+}
+
 /*!
-    @brief  Provides the sensor_t data for this sensor
-    @param  sensor
-*/
+ *  @brief  Provides the sensor_t data for this sensor
+ *  @param  sensor
+ */
 void Adafruit_BNO055::getSensor(sensor_t *sensor) {
   /* Clear the sensor_t object */
   memset(sensor, 0, sizeof(sensor_t));
@@ -478,10 +496,10 @@ void Adafruit_BNO055::getSensor(sensor_t *sensor) {
 }
 
 /*!
-    @brief  Reads the sensor and returns the data as a sensors_event_t
-    @param  event
-    @return always returns true
-*/
+ *  @brief  Reads the sensor and returns the data as a sensors_event_t
+ *  @param  event
+ *  @return always returns true
+ */
 bool Adafruit_BNO055::getEvent(sensors_event_t *event) {
   /* Clear the event */
   memset(event, 0, sizeof(sensors_event_t));
@@ -501,10 +519,88 @@ bool Adafruit_BNO055::getEvent(sensors_event_t *event) {
 }
 
 /*!
-    @brief  Reads the sensor's offset registers into a byte array
-    @param  calibData
-    @return true if read is successful
-*/
+ *  @brief  Reads the sensor and returns the data as a sensors_event_t
+ *  @param  event
+ *  @param  vec_type
+ *          specify the type of reading
+ *  @return always returns true
+ */
+bool Adafruit_BNO055::getEvent(sensors_event_t *event, adafruit_vector_type_t vec_type)
+{
+  /* Clear the event */
+  memset(event, 0, sizeof(sensors_event_t));
+
+  event->version = sizeof(sensors_event_t);
+  event->sensor_id = _sensorID;
+  event->timestamp = millis();
+
+  //read the data according to vec_type
+  imu::Vector<3> vec;
+  if (vec_type == Adafruit_BNO055::VECTOR_LINEARACCEL)
+  {
+    event->type = SENSOR_TYPE_LINEAR_ACCELERATION;
+    vec = getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+
+    event->acceleration.x = vec.x();
+    event->acceleration.y = vec.y();
+    event->acceleration.z = vec.z();
+  }
+  else if (vec_type == Adafruit_BNO055::VECTOR_ACCELEROMETER)
+  {
+    event->type = SENSOR_TYPE_ACCELEROMETER;
+    vec = getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+
+    event->acceleration.x = vec.x();
+    event->acceleration.y = vec.y();
+    event->acceleration.z = vec.z();
+  }
+  else if (vec_type == Adafruit_BNO055::VECTOR_GRAVITY)
+  {
+    event->type = SENSOR_TYPE_ACCELEROMETER;
+    vec = getVector(Adafruit_BNO055::VECTOR_GRAVITY);
+
+    event->acceleration.x = vec.x();
+    event->acceleration.y = vec.y();
+    event->acceleration.z = vec.z();
+  }
+  else if (vec_type == Adafruit_BNO055::VECTOR_EULER)
+  {
+    event->type = SENSOR_TYPE_ORIENTATION;
+    vec = getVector(Adafruit_BNO055::VECTOR_EULER);
+
+    event->orientation.x = vec.x();
+    event->orientation.y = vec.y();
+    event->orientation.z = vec.z();
+  }
+  else if (vec_type == Adafruit_BNO055::VECTOR_GYROSCOPE)
+  {
+    event->type = SENSOR_TYPE_ROTATION_VECTOR;
+    vec = getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+
+    event->gyro.x = vec.x();
+    event->gyro.y = vec.y();
+    event->gyro.z = vec.z();
+  }
+  else if (vec_type == Adafruit_BNO055::VECTOR_MAGNETOMETER)
+  {
+    event->type = SENSOR_TYPE_MAGNETIC_FIELD;
+    vec = getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
+
+    event->magnetic.x = vec.x();
+    event->magnetic.y = vec.y();
+    event->magnetic.z = vec.z();
+  }
+
+
+  return true;
+}
+
+
+/*!
+ *  @brief  Reads the sensor's offset registers into a byte array
+ *  @param  calibData
+ *  @return true if read is successful
+ */
 bool Adafruit_BNO055::getSensorOffsets(uint8_t *calibData) {
   if (isFullyCalibrated()) {
     adafruit_bno055_opmode_t lastMode = _mode;
@@ -519,13 +615,13 @@ bool Adafruit_BNO055::getSensorOffsets(uint8_t *calibData) {
 }
 
 /*!
-    @brief  Reads the sensor's offset registers into an offset struct
-    @param  offsets_type
-            type of offsets
-    @return true if read is successful
-*/
+ *  @brief  Reads the sensor's offset registers into an offset struct
+ *  @param  offsets_type
+ *          type of offsets
+ *  @return true if read is successful
+ */
 bool Adafruit_BNO055::getSensorOffsets(
-  adafruit_bno055_offsets_t &offsets_type) {
+    adafruit_bno055_offsets_t &offsets_type) {
   if (isFullyCalibrated()) {
     adafruit_bno055_opmode_t lastMode = _mode;
     setMode(OPERATION_MODE_CONFIG);
@@ -545,11 +641,11 @@ bool Adafruit_BNO055::getSensorOffsets(
 
     /* Magnetometer offset range = +/- 6400 LSB where 1uT = 16 LSB */
     offsets_type.mag_offset_x =
-      (read8(MAG_OFFSET_X_MSB_ADDR) << 8) | (read8(MAG_OFFSET_X_LSB_ADDR));
+        (read8(MAG_OFFSET_X_MSB_ADDR) << 8) | (read8(MAG_OFFSET_X_LSB_ADDR));
     offsets_type.mag_offset_y =
-      (read8(MAG_OFFSET_Y_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Y_LSB_ADDR));
+        (read8(MAG_OFFSET_Y_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Y_LSB_ADDR));
     offsets_type.mag_offset_z =
-      (read8(MAG_OFFSET_Z_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Z_LSB_ADDR));
+        (read8(MAG_OFFSET_Z_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Z_LSB_ADDR));
 
     /* Gyro offset range depends on the DPS range:
       2000 dps = +/- 32000 LSB
@@ -559,19 +655,19 @@ bool Adafruit_BNO055::getSensorOffsets(
        125 dps = +/- 2000 LSB
        ... where 1 DPS = 16 LSB */
     offsets_type.gyro_offset_x =
-      (read8(GYRO_OFFSET_X_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_X_LSB_ADDR));
+        (read8(GYRO_OFFSET_X_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_X_LSB_ADDR));
     offsets_type.gyro_offset_y =
-      (read8(GYRO_OFFSET_Y_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Y_LSB_ADDR));
+        (read8(GYRO_OFFSET_Y_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Y_LSB_ADDR));
     offsets_type.gyro_offset_z =
-      (read8(GYRO_OFFSET_Z_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Z_LSB_ADDR));
+        (read8(GYRO_OFFSET_Z_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Z_LSB_ADDR));
 
     /* Accelerometer radius = +/- 1000 LSB */
     offsets_type.accel_radius =
-      (read8(ACCEL_RADIUS_MSB_ADDR) << 8) | (read8(ACCEL_RADIUS_LSB_ADDR));
+        (read8(ACCEL_RADIUS_MSB_ADDR) << 8) | (read8(ACCEL_RADIUS_LSB_ADDR));
 
     /* Magnetometer radius = +/- 960 LSB */
     offsets_type.mag_radius =
-      (read8(MAG_RADIUS_MSB_ADDR) << 8) | (read8(MAG_RADIUS_LSB_ADDR));
+        (read8(MAG_RADIUS_MSB_ADDR) << 8) | (read8(MAG_RADIUS_LSB_ADDR));
 
     setMode(lastMode);
     return true;
@@ -580,10 +676,10 @@ bool Adafruit_BNO055::getSensorOffsets(
 }
 
 /*!
-    @brief  Writes an array of calibration values to the sensor's offset
-    @param  *calibData
-            calibration data
-*/
+ *  @brief  Writes an array of calibration values to the sensor's offset
+ *  @param  *calibData
+ *          calibration data
+ */
 void Adafruit_BNO055::setSensorOffsets(const uint8_t *calibData) {
   adafruit_bno055_opmode_t lastMode = _mode;
   setMode(OPERATION_MODE_CONFIG);
@@ -626,22 +722,22 @@ void Adafruit_BNO055::setSensorOffsets(const uint8_t *calibData) {
 }
 
 /*!
-    @brief  Writes to the sensor's offset registers from an offset struct
-    @param  offsets_type
-            accel_offset_x = acceleration offset x
-            accel_offset_y = acceleration offset y
-            accel_offset_z = acceleration offset z
-
-            mag_offset_x   = magnetometer offset x
-            mag_offset_y   = magnetometer offset y
-            mag_offset_z   = magnetometer offset z
-
-            gyro_offset_x  = gyroscrope offset x
-            gyro_offset_y  = gyroscrope offset y
-            gyro_offset_z  = gyroscrope offset z
-*/
+ *  @brief  Writes to the sensor's offset registers from an offset struct
+ *  @param  offsets_type
+ *          accel_offset_x = acceleration offset x
+ *          accel_offset_y = acceleration offset y
+ *          accel_offset_z = acceleration offset z
+ *
+ *          mag_offset_x   = magnetometer offset x
+ *          mag_offset_y   = magnetometer offset y
+ *          mag_offset_z   = magnetometer offset z
+ *
+ *          gyro_offset_x  = gyroscrope offset x
+ *          gyro_offset_y  = gyroscrope offset y
+ *          gyro_offset_z  = gyroscrope offset z
+ */
 void Adafruit_BNO055::setSensorOffsets(
-  const adafruit_bno055_offsets_t &offsets_type) {
+    const adafruit_bno055_offsets_t &offsets_type) {
   adafruit_bno055_opmode_t lastMode = _mode;
   setMode(OPERATION_MODE_CONFIG);
   delay(25);
@@ -682,20 +778,67 @@ void Adafruit_BNO055::setSensorOffsets(
 }
 
 /*!
-    @brief  Checks of all cal status values are set to 3 (fully calibrated)
-    @return status of calibration
-*/
+ *  @brief  Checks of all cal status values are set to 3 (fully calibrated)
+ *  @return status of calibration
+ */
 bool Adafruit_BNO055::isFullyCalibrated() {
   uint8_t system, gyro, accel, mag;
   getCalibration(&system, &gyro, &accel, &mag);
-  if (system < 3 || gyro < 3 || accel < 3 || mag < 3)
-    return false;
-  return true;
+
+  switch (_mode) {
+  case OPERATION_MODE_ACCONLY:
+    return (accel == 3);
+  case OPERATION_MODE_MAGONLY:
+    return (mag == 3);
+  case OPERATION_MODE_GYRONLY:
+  case OPERATION_MODE_M4G: /* No magnetometer calibration required. */
+    return (gyro == 3);
+  case OPERATION_MODE_ACCMAG:
+  case OPERATION_MODE_COMPASS:
+    return (accel == 3 && mag == 3);
+  case OPERATION_MODE_ACCGYRO:
+  case OPERATION_MODE_IMUPLUS:
+    return (accel == 3 && gyro == 3);
+  case OPERATION_MODE_MAGGYRO:
+    return (mag == 3 && gyro == 3);
+  default:
+    return (system == 3 && gyro == 3 && accel == 3 && mag == 3);
+  }
 }
 
 /*!
-    @brief  Writes an 8 bit value over I2C
-*/
+ *  @brief  Enter Suspend mode (i.e., sleep)
+ */
+void Adafruit_BNO055::enterSuspendMode() {
+  adafruit_bno055_opmode_t modeback = _mode;
+
+  /* Switch to config mode (just in case since this is the default) */
+  setMode(OPERATION_MODE_CONFIG);
+  delay(25);
+  write8(BNO055_PWR_MODE_ADDR, 0x02);
+  /* Set the requested operating mode (see section 3.3) */
+  setMode(modeback);
+  delay(20);
+}
+
+/*!
+ *  @brief  Enter Normal mode (i.e., wake)
+ */
+void Adafruit_BNO055::enterNormalMode() {
+  adafruit_bno055_opmode_t modeback = _mode;
+
+  /* Switch to config mode (just in case since this is the default) */
+  setMode(OPERATION_MODE_CONFIG);
+  delay(25);
+  write8(BNO055_PWR_MODE_ADDR, 0x00);
+  /* Set the requested operating mode (see section 3.3) */
+  setMode(modeback);
+  delay(20);
+}
+
+/*!
+ *  @brief  Writes an 8 bit value over I2C
+ */
 bool Adafruit_BNO055::write8(adafruit_bno055_reg_t reg, byte value) {
   _wire->beginTransmission(_address);
 #if ARDUINO >= 100
@@ -712,8 +855,8 @@ bool Adafruit_BNO055::write8(adafruit_bno055_reg_t reg, byte value) {
 }
 
 /*!
-    @brief  Reads an 8 bit value over I2C
-*/
+ *  @brief  Reads an 8 bit value over I2C
+ */
 byte Adafruit_BNO055::read8(adafruit_bno055_reg_t reg) {
   byte value = 0;
 
@@ -735,8 +878,8 @@ byte Adafruit_BNO055::read8(adafruit_bno055_reg_t reg) {
 }
 
 /*!
-    @brief  Reads the specified number of bytes over I2C
-*/
+ *  @brief  Reads the specified number of bytes over I2C
+ */
 bool Adafruit_BNO055::readLen(adafruit_bno055_reg_t reg, byte *buffer,
                               uint8_t len) {
   _wire->beginTransmission(_address);

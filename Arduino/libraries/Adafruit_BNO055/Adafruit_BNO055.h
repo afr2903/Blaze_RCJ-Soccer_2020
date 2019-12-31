@@ -296,10 +296,12 @@ public:
 
   imu::Vector<3> getVector(adafruit_vector_type_t vector_type);
   imu::Quaternion getQuat();
+  double getError();
   int8_t getTemp();
 
   /* Adafruit_Sensor implementation */
   bool getEvent(sensors_event_t *);
+  bool getEvent(sensors_event_t *, adafruit_vector_type_t);
   void getSensor(sensor_t *);
 
   /* Functions to deal with raw calibration data */
@@ -308,6 +310,10 @@ public:
   void setSensorOffsets(const uint8_t *calibData);
   void setSensorOffsets(const adafruit_bno055_offsets_t &offsets_type);
   bool isFullyCalibrated();
+
+  /* Power managments functions */
+  void enterSuspendMode();
+  void enterNormalMode();
 
 private:
   byte read8(adafruit_bno055_reg_t);
