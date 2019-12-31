@@ -35,18 +35,31 @@ for i in range(200):
 print(threshold);"""
 print(sensor.get_rgb_gain_db())
 print(sensor.get_gain_db())
-threshold= [37, 76, 32, 77, -5, 63]
-d=0
+threshold= [27, 76, 32, 77, -5, 63]
 R=3.25
 M=0.19375
+d=0
+h=-6.5+15.5
+
+A=C=0
+B=17
+a=b=c=0
+angle=0
+
 while(True):
     clock.tick()
     img = sensor.snapshot()
     for blob in img.find_blobs([threshold], pixels_threshold=100, area_threshold=100, merge=True, margin=10):
         img.draw_rectangle(blob.rect())
         img.draw_cross(blob.cx(), blob.cy())
-        angle= int(blob.cx()*.22125)
-        uart.writechar(angle)
-        d=R/math.tan((M*blob.w()/2)*math.pi/180.0)
-        print(d)
+        a= int(blob.cx()*.22125)-35.4
+        d= R/math.tan((M*blob.w()/2)*math.pi/180.0)
+        C= math.sqrt( d**2-h**2 )
+        A= math.sqrt( (B**2+C**2) - (2*B*C*math.cos(a*math.pi/180.0)) )
+        c= math.sin(a*math.pi/180.0)*C / A
+        angle= math.asin(c)*180/math.pi*1.3
+
+        uart.writechar( int(angle+100) )
+        uart.writechar( int(A) )
+        #print(angle, A)
 #70.8°
