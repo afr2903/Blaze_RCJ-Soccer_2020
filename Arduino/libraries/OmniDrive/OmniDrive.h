@@ -1,5 +1,5 @@
-#ifndef Omni_h
-#define Omni_h
+#ifndef OmniDrive_h
+#define OmniDrive_h
 
 #include "Arduino.h"
 
@@ -14,10 +14,9 @@ struct motor{
     double omniSpeed(int target, int speed);
 };
 
-class Omni
-{
+class OmniDrive{
   public:
-    Omni(int _nMot, motor **_mot);
+    OmniDrive(int _nMot, motor **_mot);
     void test(int speed);
     void setPID(double _kp, double _ki, double _kd);
     double getPID(double error);

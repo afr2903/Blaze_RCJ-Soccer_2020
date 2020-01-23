@@ -1,8 +1,8 @@
 #include "Arduino.h"
-#include "Omni.h"
+#include "OmniDrive.h"
 
-//CONSTRUCTORES
-Omni::Omni(int _nMot, motor **_mot){
+//CONSTRUCTORS
+OmniDrive::OmniDrive(int _nMot, motor **_mot){
     nMot= _nMot;
     mot= _mot;
     for(int i=0; i<nMot; i++)
@@ -16,8 +16,8 @@ motor::motor(int rP, int lP, int pP){
 
 //MOTOR CONTROL
 void motor::moveMotor(int speed){
-    bool dir= speed>0? 1:0;
-    sp= min(255, max(0,abs(speed)));
+    bool dir= speed>0;
+    speed= min(255, max(0,abs(speed)));
     if(pwmPin) analogWrite(pwmPin, speed);
     digitalWrite(rightPin, dir);
     digitalWrite(leftPin, !dir);
@@ -27,11 +27,11 @@ double motor::omniSpeed(int target, int speed){
 }
 
 //PID CONTROL
-void Omni::setPID(double _kp, double _ki, double _kd){
+void OmniDrive::setPID(double _kp, double _ki, double _kd){
     kp=_kp, ki=_ki, kd=_kd;
     integral= lastError= 0;
 }
-double Omni::getPID(double error){
+double OmniDrive::getPID(double error){
     derivative= error-lastError;
     integral+= error;
     lastError= error;
@@ -39,7 +39,7 @@ double Omni::getPID(double error){
 }
 
 //MOVEMENT FUNCTIONS
-void Omni::test(int speed){
+void OmniDrive::test(int speed){
     for(int i=0; i<nMot; i++){
         (*mot[i]).moveMotor(speed);
         delay(500);
@@ -48,12 +48,12 @@ void Omni::test(int speed){
         (*mot[i]).moveMotor(0);
     }
 }
-void Omni::align(double error){
+void OmniDrive::align(double error){
     double pid= getPID(error);
     for(int i=0; i<nMot; i++)
         (*mot[i]).moveMotor(-pid);
 }
-void Omni::move(int target, int speed, double error){
+void OmniDrive::move(int target, int speed, double error){
     double pid= getPID(error);
     double maxSp=0;
     for(int i=0; i<nMot; i++)
