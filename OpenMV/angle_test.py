@@ -57,7 +57,7 @@ while(True):
         C= math.sqrt( d**2-h**2 )
         A= math.sqrt( (B**2+C**2) - (2*B*C*math.cos(a*math.pi/180.0)) )
         c= math.sin(a*math.pi/180.0)*C / A
-        angle= math.asin(c)*180/math.pi*1.3
+        angle= math.asin(c)*180/math.pi*1.35
 
         uart.writechar( int(angle+100) )
         uart.writechar( int(A) )
