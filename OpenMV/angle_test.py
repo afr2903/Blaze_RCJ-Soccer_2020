@@ -11,8 +11,8 @@ sensor.skip_frames(time = 500)
 #sensor.set_auto_gain(False) #7.04294  must be turned off for color tracking
 sensor.set_auto_whitebal(False,[-6.02073, -3.454361, -0.4176831]) # must be turned off for color tracking
 clock = time.clock()
-"""
-r = [(300//2)-(50//2), (220//2)-(50//2), 80, 80]
+
+"""r = [(300//2)-(50//2), (220//2)-(50//2), 80, 80]
 for i in range(150):
     img = sensor.snapshot()
     img.draw_rectangle(r)
@@ -35,14 +35,16 @@ for i in range(200):
 print(threshold);"""
 print(sensor.get_rgb_gain_db())
 print(sensor.get_gain_db())
-threshold= [27, 76, 32, 77, -5, 63]
+threshold= [37, 76, 32, 77, -5, 63]
+#blue [17, 30, -16, 23, -52, -15]
+#yellow [47, 70, -51, -30, 26, 63]
 R=3.25
 M=0.19375
 d=0
-h=-6.5+15.5
+h=-6.5+13
 
 A=C=0
-B=17
+B=5
 a=b=c=0
 angle=0
 
@@ -52,14 +54,26 @@ while(True):
     for blob in img.find_blobs([threshold], pixels_threshold=100, area_threshold=100, merge=True, margin=10):
         img.draw_rectangle(blob.rect())
         img.draw_cross(blob.cx(), blob.cy())
-        a= int(blob.cx()*.22125)-35.4
-        d= R/math.tan((M*blob.w()/2)*math.pi/180.0)
-        C= math.sqrt( d**2-h**2 )
-        A= math.sqrt( (B**2+C**2) - (2*B*C*math.cos(a*math.pi/180.0)) )
-        c= math.sin(a*math.pi/180.0)*C / A
-        angle= math.asin(c)*180/math.pi*1.35
 
-        uart.writechar( int(angle+100) )
+        if(blob.cy()<120):
+            try:
+                a= int(blob.cx()*.23125)-35.4
+                d= R/math.tan((M*blob.w()/2)*math.pi/180.0)
+                C= math.sqrt( d**2-h**2 )
+                A= math.sqrt( (B**2+C**2) - (2*B*C*math.cos(a*math.pi/180.0)) )
+                c= math.sin(a*math.pi/180.0)*C / A
+                angle= math.asin(c)*180/math.pi*1.35
+                if(A<10 and abs(angle)<60):
+                    angle = 0
+            except:
+                angle = 0
+                A = 0
+        else:
+            angle = 0
+            A = 0
+
+        #img.draw_line(0, 120, 320, 120, color = (0, 255, 0), thickness = 2)
+        uart.writechar( int(angle+120) )
         uart.writechar( int(A) )
-        #print(angle, A)
+        #print(angle, A, blob.cy())
 #70.8°
