@@ -1,8 +1,8 @@
 #include "Arduino.h"
-#include "OmniDrive.h"
+#include "Drive.h"
 
 //CONSTRUCTORS
-OmniDrive::OmniDrive(int _nMot, motor **_mot){
+Drive::Drive(int _nMot, motor **_mot){
     nMot= _nMot;
     mot= _mot;
     for(int i=0; i<nMot; i++)
@@ -15,23 +15,32 @@ motor::motor(int rP, int lP, int pP){
 }
 
 //MOTOR CONTROL
-void motor::moveMotor(int speed){
+void motor::moveMotor(double speed){
     bool dir= speed>0;
-    speed= min(255, max(0,abs(speed)));
+    if(ramp_active) speed = ramp(speed);
+    speed= min(1, max(0,abs(speed))) * 255;
     if(pwmPin) analogWrite(pwmPin, speed);
     digitalWrite(rightPin, dir);
     digitalWrite(leftPin, !dir);
 }
-double motor::omniSpeed(int target, int speed){
+double motor::ramp(double speed){
+    target_speed = speed;
+    if( abs(target_speed) > abs(current_speed) ){
+        if(target_speed>0) current_speed += ramp_rate;
+        else current_speed -= ramp_rate;
+    }
+    return current_speed;
+}
+double motor::omniSpeed(int target, double speed){
     return sp= sin((target-angle)*PI/180)*speed;
 }
 
 //PID CONTROL
-void OmniDrive::setPID(double _kp, double _ki, double _kd){
-    kp=_kp, ki=_ki, kd=_kd;
+void Drive::setPID(double _kp, double _ki, double _kd){
+    kp=_kp/255, ki=_ki/255, kd=_kd/255;
     integral= lastError= 0;
 }
-double OmniDrive::getPID(double error){
+double Drive::getPID(double error){
     derivative= error-lastError;
     integral+= error;
     lastError= error;
@@ -39,7 +48,7 @@ double OmniDrive::getPID(double error){
 }
 
 //MOVEMENT FUNCTIONS
-void OmniDrive::test(int speed){
+void Drive::test(double speed){
     for(int i=0; i<nMot; i++){
         (*mot[i]).moveMotor(speed);
         delay(500);
@@ -48,12 +57,13 @@ void OmniDrive::test(int speed){
         (*mot[i]).moveMotor(0);
     }
 }
-void OmniDrive::align(double error){
+void Drive::align(double error){
     double pid= getPID(error);
     for(int i=0; i<nMot; i++)
         (*mot[i]).moveMotor(-pid);
 }
-void OmniDrive::move(int target, int speed, double error){
+void Drive::move(int target, double speed, double error){
+    speed /= 255;
     double pid= getPID(error);
     double maxSp=0;
     for(int i=0; i<nMot; i++)
