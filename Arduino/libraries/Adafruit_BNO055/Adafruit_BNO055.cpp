@@ -467,12 +467,20 @@ imu::Quaternion Adafruit_BNO055::getQuat() {
   imu::Quaternion quat(scale * w, scale * x, scale * y, scale * z);
   return quat;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 double Adafruit_BNO055::getError(){
   imu::Quaternion q= getQuat();
   double siny_cosp = 2 * (q.w()*q.z() + q.x()*q.y());
   double cosy_cosp = 1 - 2 * (q.y()*q.y() + q.z()*q.z());
-  return -atan2(siny_cosp, cosy_cosp)*180/PI;
+  double temp= -atan2(siny_cosp, cosy_cosp)*180/PI;
+
+  if(digitalRead(buttonPin)&&!flag){
+    zero= temp;
+    flag= true;
+  }
+  if(!digitalRead(buttonPin)&&flag) flag= false;
+  temp-= zero;
+  return temp + (temp>180? -360: temp<-180? 360:0);
 }
 
 /*!

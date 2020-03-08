@@ -325,6 +325,10 @@ private:
 
   int32_t _sensorID;
   adafruit_bno055_opmode_t _mode;
+
+  int buttonPin= 12;
+  bool flag= false;
+  double zero=0.0;
 };
 
 #endif
